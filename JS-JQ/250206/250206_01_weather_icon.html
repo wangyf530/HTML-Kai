@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>各縣市天氣預報</title>
+    <!-- link css 順序 1.bs 2.self -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"
+        integrity="sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        .cities {
+            display: none;
+        }
+
+        .active {
+            display: table-row;
+            ;
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <div class="container mt-3">
+        <h2>各縣市天氣預報</h2>
+        <p>近36小時 - 政府資料開放平臺</p>
+
+        <div class="mb-3 text-left">
+            <label for="citySelector" class="form-label">選擇城市</label>
+            <select class="form-select" id="citySelector" aria-label="Select a Taiwan city">
+                <option value="" disabled selected>請選擇</option>
+                <optgroup label="北部">
+                    <option value="18">基隆市</option>
+                    <option value="1">新北市</option>
+                    <option value="5">臺北市</option>
+                    <option value="13">桃園市</option>
+                    <option value="3">新竹縣</option>
+                    <option value="4">新竹市</option>
+                    <option value="7">宜蘭縣</option>
+                <optgroup label="中部">
+                    <option value="8">苗栗縣</option>
+                    <option value="11">臺中市</option>
+                    <option value="20">彰化縣</option>
+                    <option value="9">雲林縣</option>
+                    <option value="14">南投縣</option>
+                <optgroup label="南部">
+                    <option value="0">嘉義縣</option>
+                    <option value="2">嘉義市</option>
+                    <option value="6">臺南市</option>
+                    <option value="15">高雄市</option>
+                    <option value="17">屏東縣</option>
+                    <option value="19">澎湖縣</option>
+                <optgroup label="東部">
+                    <option value="12">臺東縣</option>
+                    <option value="10">花蓮縣</option>
+                <optgroup label="福建省">
+                    <option value="16">金門縣</option>
+                    <option value="21">連江縣</option>
+            </select>
+        </div>
+
+        <table class="table table-hover" id="myTable">
+            <thead>
+                <tr class="text-center">
+                    <th class="align-middle">ID</th>
+                    <th class="align-middle">NAME</th>
+                    <th id="time0">time0</th>
+                    <th id="time1">time1</th>
+                    <th id="time2">time2</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- <tr>
+                    <td>1</td>
+                    <td>新北市</td>
+                </tr> -->
+            </tbody>
+        </table>
+    </div>
+
+
+    <!-- js include 順序 1.bs 2.jq 3.self -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"
+        integrity="sha512-7Pi/otdlbbCR+LnW+F7PwFcSDJOuUJB3OxtEHbg4vSMvzvJjde4Po1v4BR9Gdc9aXNUNFVUY+SK51wWT8WF0Gg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+        integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="../pw/pw.js"></script>
+    <script>
+        $(document).ready(function () {
+            let pwd = pw;
+            // console.log('pwd', pwd);
+
+            // 1.bind
+            const myTable = $('#myTable');
+            const myTbody = myTable.find('tbody');
+            console.log('myTbody', myTbody);
+
+
+            // 2.action
+
+            let url = `https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=${pwd}`;
+            $.ajax({
+                type: "get",
+                url: url,
+                // data: "data",
+                dataType: "Json",
+                success: function (res) {
+                    console.log('res', res);
+                    let data = res.records.location[3].locationName;
+                    data = res.records.location;
+                    console.log('data', data);
+
+                    // time0
+                    let startTime0 = data[0].weatherElement[0].time[0].startTime;
+                    let start0Date = startTime0.substr(5, 5);
+                    let start0Time = startTime0.substr(11, 2);
+                    let endTime0 = data[0].weatherElement[0].time[0].endTime;
+                    let end0Date = endTime0.substr(5, 5);
+                    let end0Time = endTime0.substr(11, 2);
+                    // time1
+                    let startTime1 = data[0].weatherElement[0].time[1].startTime;
+                    let start1Date = startTime1.substr(5, 5);
+                    let start1Time = startTime1.substr(11, 2);
+                    let endTime1 = data[0].weatherElement[0].time[1].endTime;
+                    let end1Date = endTime1.substr(5, 5);
+                    let end1Time = endTime1.substr(11, 2);
+
+                    // time2
+                    let startTime2 = data[0].weatherElement[0].time[2].startTime;
+                    let start2Date = startTime2.substr(5, 5);
+                    let start2Time = startTime2.substr(11, 2);
+                    let endTime2 = data[0].weatherElement[0].time[2].endTime;
+                    let end2Date = endTime2.substr(5, 5);
+                    let end2Time = endTime2.substr(11, 2);
+
+                    console.log('startTime0', startTime0);
+                    console.log('endTime0', endTime0);
+                    console.log('startTime1', startTime1);
+                    console.log('endTime1', endTime1);
+                    console.log('startTime2', startTime2);
+                    console.log('endTime2', endTime2);
+
+                    time0Text = start0Date + " " + start0Time + ":00 <br>" + end0Date + " " + end0Time + ":00";
+                    time1Text = start1Date + " " + start1Time + ":00 <br>" + end1Date + " " + end1Time + ":00";
+                    time2Text = start2Date + " " + start2Time + ":00 <br>" + end2Date + " " + end2Time + ":00";
+
+                    timeText = `<div>${start0Date}  ${start0Time}:00</div>
+                                <div>${end0Date}  ${end0Time}:00</div>
+                                `;
+
+                    $('#time0').html(timeText);
+                    $('#time1').html(time1Text);
+                    $('#time2').html(time2Text);
+
+                    $.each(data, function (key, value) {
+                        // console.log('key', key);
+                        // console.log('value', value.locationName);
+
+                        let tmpLocationName = value.locationName;
+                        let tmpLocationID = key;
+                        let tmpWeatherElement = value.weatherElement;
+                        // min temp
+                        let tmpMinTtime0 = tmpWeatherElement[2].time[0].parameter['parameterName'];
+                        let tmpMinTtime1 = tmpWeatherElement[2].time[1].parameter['parameterName'];
+                        let tmpMinTtime2 = tmpWeatherElement[2].time[2].parameter['parameterName'];
+                        // max temp
+                        let tmpMaxTtime0 = tmpWeatherElement[4].time[0].parameter['parameterName'];
+                        let tmpMaxTtime1 = tmpWeatherElement[4].time[1].parameter['parameterName'];
+                        let tmpMaxTtime2 = tmpWeatherElement[4].time[2].parameter['parameterName'];
+                        // wx
+                        let tmpWx0 = tmpWeatherElement[0].time[0].parameter['parameterValue'];
+                        let tmpWx1 = tmpWeatherElement[0].time[1].parameter['parameterValue'];
+                        let tmpWx2 = tmpWeatherElement[0].time[2].parameter['parameterValue'];
+
+                        // wx中文
+                        let tmpWxText0 = tmpWeatherElement[0].time[0].parameter['parameterName'];
+                        let tmpWxText1 = tmpWeatherElement[0].time[1].parameter['parameterName'];
+                        let tmpWxText2 = tmpWeatherElement[0].time[2].parameter['parameterName'];
+
+                        // console.log('tmpMinTtime0',tmpMinTtime0);
+                        // console.log('tmpMinTtime1',tmpMinTtime1);
+                        // console.log('tmpMinTtime2',tmpMinTtime2);
+
+                        // console.log('tmpMaxTtime0',tmpMaxTtime0);
+                        // console.log('tmpMaxTtime1',tmpMaxTtime1);
+                        // console.log('tmpMaxTtime2',tmpMaxTtime2);
+
+                        // console.log('tmpWx1',tmpWx0);
+
+
+                        // console.log('tmpWeatherElement', tmpWeatherElement);
+                        // console.log('tmpWeatherElement[2]', tmpWeatherElement[2]);
+                        // console.log('tmpWeatherElement[2].time[0]', tmpWeatherElement[2].time[0].parameter['parameterName']);
+                        // console.log('tmpWeatherElement[4]', tmpWeatherElement[4]);
+                        // console.log('tmpWeatherElement[4].time[0]', tmpWeatherElement[4].time[0].parameter['parameterName']);
+
+
+
+                        // 1.地名
+                        // console.log('tmpLocationName', tmpLocationName);
+
+                        // 判斷白天還是晚上
+                        let dayNight0 = 'day';
+                        let dayNight1 = 'day';
+                        let dayNight2 = 'day';
+                        if (start0Time == '18') {
+                            dayNight0 = 'night';
+                            dayNight2 = 'night';
+                        } else {
+                            dayNight1 = 'night'
+                        }
+                        // console.log('dayNight1',dayNight1);
+                        // console.log('dayNight2',dayNight2);
+                        // console.log('dayNight3',dayNight3);
+
+                        // 
+                        let checkActive = 'active';
+
+                        // 2.table
+                        let temText = `
+                            <tr class='cities city${tmpLocationID} ${checkActive}'>
+                                <td class='align-middle'>${tmpLocationID + 1}</td>
+                                <td class='align-middle'>${tmpLocationName}</td>
+                                <td class='align-middle'>
+                                    ${tmpMinTtime0} - ${tmpMaxTtime0} °C <img src="./${dayNight0}/${tmpWx0}.svg" alt="${tmpWxText0}">
+                                </td>
+                                <td class='align-middle'>
+                                    ${tmpMinTtime1} - ${tmpMaxTtime1} °C
+                                    <img src="./${dayNight1}/${tmpWx1}.svg" alt="${tmpWxText1}">
+                                </td>
+                                <td>
+                                    ${tmpMinTtime2} - ${tmpMaxTtime2} °C
+                                    <img src="./${dayNight2}/${tmpWx2}.svg" alt="${tmpWxText2}">
+                                </td>
+                            </tr>
+                        `;
+                        $(myTbody).append(temText);
+                    });
+                }
+            });
+
+            // 監聽城市選擇
+            $('#citySelector').change(function () {
+                let selectedCity = $(this).val(); // 獲取選中的城市 ID
+                console.log('選擇的城市 ID:', selectedCity);
+                let cityChose = '.city' + selectedCity;
+                $('.cities').removeClass('active')
+                $(cityChose).addClass('active');
+            });
+        });
+    </script>
+
+</body>
+
+</html>
